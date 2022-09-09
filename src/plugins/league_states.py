@@ -5,12 +5,12 @@ from PIL import Image, ImageDraw, ImageFont
 from decouple import config
 from pyrogram import filters
 from pyrogram.client import Client
-from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto
 from fpl import FPL
 from prettytable import PrettyTable
 
 # League data scraper
-async def league_scraper(client: Client, chat_id: int, league_id: int):
+async def league_scraper(message: Message, league_id: int, standing_page: int = 1):
     # Get league data
     async with aiohttp.ClientSession() as session:
         fpl = FPL(session)
@@ -20,13 +20,13 @@ async def league_scraper(client: Client, chat_id: int, league_id: int):
         )
         classic_league = await fpl.get_classic_league(league_id)
 
-    classic_league = await classic_league.get_standings(page=1, page_new_entries=1, phase=1)
+        classic_league_standings = await classic_league.get_standings(page=standing_page, page_new_entries=1, phase=1)
 
     # Sort standings data
     standings_table = PrettyTable(["Rank", "Team", "Full Name", "GW", "Points"])
     # standings_table.max_table_width = 63 # Limit the width for image
 
-    for team in classic_league["results"]:
+    for team in classic_league_standings["results"]:
         standings_table.add_row([
             team["rank"],
             team["entry_name"],
@@ -43,18 +43,27 @@ async def league_scraper(client: Client, chat_id: int, league_id: int):
     draw.text((36, 20), str(standings_table), font=font, fill="black")
     image.save("src/static/standings.png") # Saving the created image
 
+    # Inline Keyboard
+    inline_keyboard = [[]]
+
+    if standing_page != 1:
+        inline_keyboard[0].append(InlineKeyboardButton("Previous Page", callback_data=f"{league_id}:{standing_page - 1}"))
+
+    if classic_league_standings["has_next"]:
+        inline_keyboard[0].append(InlineKeyboardButton("Next Page", callback_data=f"{league_id}:{standing_page + 1}"))
+
     # Send the league state as new message
-    await client.send_photo(
-        chat_id=chat_id,
-        photo="src/static/standings.png",
-        caption="**League Standings**\n"
-        "__Page 1__",
-        reply_markup=InlineKeyboardMarkup([
-            [
-                InlineKeyboardButton("Previous Page", callback_data="1"),
-                InlineKeyboardButton("Next Page", callback_data="1"), 
-            ],
-        ])
+    await message.edit_media(
+        media=InputMediaPhoto(
+            media="src/static/standings.png",
+
+            caption=f"🏆 **{classic_league.league['name']} Standings**\n"
+            f"➕ Created Date: {classic_league.league['created']}\n"
+            f"▶️ Started GW: {classic_league.league['start_event']}\n"
+            f"📃 __Page {standing_page}__",
+        ),
+
+        reply_markup=InlineKeyboardMarkup(inline_keyboard) if len(inline_keyboard[0]) > 1 else None
     )
 
 # Choosing a league to scrap
@@ -64,29 +73,36 @@ async def send_leagues(client: Client, message: Message):
     if len(message.text.split(" ")) == 1:
         leagues = config("LEAGUES_ID", cast=lambda v: [s.strip() for s in v.split(',')])
 
-        await message.reply_text(
-            "Please choose one of the following leagues:\n\n",
+        await client.send_animation(
+            chat_id=message.chat.id,
+            animation="src/static/loading_gif.gif",
+            caption="Please choose one of the following leagues:\n\n",
             reply_markup=InlineKeyboardMarkup([
                 [InlineKeyboardButton(league.split("-")[0], callback_data=league.split("-")[1])] for league in leagues
             ])
         )
 
     elif len(message.text.split(" ")) == 2:
-        await message.reply_text("Please Wait...")
-        await league_scraper(client, message.chat.id, int(message.text.split(" ")[1]))
+        table_message = await client.send_animation(
+            chat_id=message.chat.id,
+            animation="src/static/loading_gif.gif",
+            caption="Please Wait..."
+        )
+        await league_scraper(table_message, int(message.text.split(" ")[1]))
 
     else:
         await message.reply_text("Wront command format.\n\nUsage: /leagues `[league_id]`")
 
 
 # Main function that gets league data from fpl api and sort it
-@Client.on_callback_query(filters.regex("^[0-9]+$"))
+@Client.on_callback_query(filters.regex("^[0-9]+"))
 async def get_league_state(client: Client, callback_query: CallbackQuery):
 
-    league_id = int(callback_query.data)
+    league_id = int(callback_query.data.split(":")[0])
+    standing_page = 1 if len(callback_query.data.split(":")) == 1 else int(callback_query.data.split(":")[1])
 
-    # Delete the message. later we will send the league state as edited message
-    await callback_query.message.delete()
+    # Send Waiting message
+    await callback_query.message.edit_caption("Please Wait...")
 
     # Get league data
-    await league_scraper(client, callback_query.message.chat.id, league_id)
+    await league_scraper(callback_query.message, league_id, standing_page)
