@@ -91,7 +91,7 @@ async def send_leagues(client: Client, message: Message):
         await league_scraper(table_message, int(message.text.split(" ")[1]))
 
     else:
-        await message.reply_text("Wront command format.\n\nUsage: /leagues `[league_id]`")
+        await message.reply_text("Wrong command format.\n\nUsage: /leagues `[league_id]`")
 
 
 # Main function that gets league data from fpl api and sort it
