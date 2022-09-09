@@ -63,7 +63,7 @@ async def league_scraper(message: Message, league_id: int, standing_page: int = 
             f"📃 __Page {standing_page}__",
         ),
 
-        reply_markup=InlineKeyboardMarkup(inline_keyboard) if len(inline_keyboard[0]) > 1 else None
+        reply_markup=InlineKeyboardMarkup(inline_keyboard) if len(inline_keyboard[0]) > 0 else None
     )
 
 # Choosing a league to scrap
