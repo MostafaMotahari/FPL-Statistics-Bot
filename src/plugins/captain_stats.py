@@ -39,18 +39,12 @@ async def get_captains(league_id: int):
         top_three_captains = Counter(captains).most_common(3)
 
         # Insert in table
-        captains_table = PrettyTable(["League"])
+        captains_table = PrettyTable()
+        captains_table.add_column("League", [classic_league.league["name"]])
 
         for captain in top_three_captains:
             captain = await fpl.get_player(captain[0])
-            captains_table.add_column(captain.first_name)
-
-        captains_table.add_row(
-            classic_league.name,
-            await fpl.get_player(top_three_captains[0][1]),
-            await fpl.get_player(top_three_captains[1][1]),
-            await fpl.get_player(top_three_captains[2][1]),
-        )
+            captains_table.add_column(captain.first_name, [captain[1]])
 
         return captains_table
 
