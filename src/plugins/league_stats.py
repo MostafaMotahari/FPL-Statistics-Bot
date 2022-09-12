@@ -1,5 +1,5 @@
 from importlib.util import decode_source
-import aiohttp
+import requests
 from PIL import Image, ImageDraw, ImageFont
 
 from decouple import config
@@ -12,10 +12,11 @@ from src.__main__ import BASE_API_URL
 # League data scraper
 async def league_scraper(message: Message, league_id: int, standing_page: int = 1):
     # Get league data
-    async with aiohttp.ClientSession() as session:
+    
         # Get classic league from api
-        classic_league = await session.get(f"{BASE_API_URL}leagues-classic/{league_id}/standings/?page_standings={standing_page}")
-        classic_league = await classic_league.json()
+    classic_league = requests.get(f"{BASE_API_URL}leagues-classic/{league_id}/standings/?page_standings={standing_page}")
+    
+    classic_league = classic_league.json()
 
     # Sort standings data
     standings_table = PrettyTable(["Rank", "Team", "Full Name", "GW", "Points"])
