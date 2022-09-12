@@ -43,8 +43,8 @@ async def get_captains(league_id: int):
         captains_table.add_column("League", [classic_league.league["name"]])
 
         for captain in top_three_captains:
-            captain = await fpl.get_player(captain[0])
-            captains_table.add_column(captain["web_name"], [captain[1]])
+            captain_player_obj = await fpl.get_player(captain[0])
+            captains_table.add_column(captain_player_obj.web_name, [captain[1]])
 
         return captains_table
 
