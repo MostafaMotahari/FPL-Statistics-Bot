@@ -60,7 +60,7 @@ async def captain_stats(client: Client, message: Message):
 
     margin = int(image.size[1] / 5)
     for index, captains_table in enumerate(leagues_captains_tables):
-        draw.text((36, (index * margin) + 30), str(captains_table), font=font, fill="black")
+        draw.text((55, (index * margin) + 30), str(captains_table), font=font, fill="black")
 
     image.save("src/static/captains_table.png") # Saving the created image
 
