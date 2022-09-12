@@ -4,32 +4,28 @@ from PIL import Image, ImageDraw, ImageFont
 
 from pyrogram import filters
 from pyrogram.client import Client
-from pyrogram.types import Message, CallbackQuery, InlineKeyboardMarkup, InlineKeyboardButton
-from fpl import FPL
+from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
 from decouple import config
 from prettytable import PrettyTable
+from src.__main__ import BASE_API_URL
 
 # Get leage captains
 async def get_captains(league_id: int):
 
     # Get league data
     async with aiohttp.ClientSession() as session:
-        fpl = FPL(session)
-        await fpl.login(
-            config("FPL_EMAIL"),
-            config("FPL_PASSWORD"),
-        )
+        # Get classic league from api
+        classic_league = await session.get(f"{BASE_API_URL}leagues-classic/{league_id}/standings/?page_standings=1")
+        classic_league = await classic_league.json()
 
-        classic_league = await fpl.get_classic_league(league_id)
         # Export user IDs
-        user_ids = [user["entry"] for user in classic_league.standings["results"]]
-
-        # Get user data and captains
-        users = [await fpl.get_user(user_id) for user_id in user_ids]
+        user_ids = [user["entry"] for user in classic_league["standings"]["results"]]
 
         # Exporting players
-        users_picks = [await user.get_picks(6) for user in users]
-        all_pick_lists = [pick_list_json[6] for pick_list_json in users_picks]
+        users_picks = [await session.get(f"{BASE_API_URL}entry/{user_id}/event/6/picks/") for user_id in user_ids]
+        users_picks = [await user.json() for user in users_picks]
+
+        all_pick_lists = [pick_list_json["picks"] for pick_list_json in users_picks]
         # Seperate captains
         captains = []
         for pick_list in all_pick_lists:
@@ -40,11 +36,12 @@ async def get_captains(league_id: int):
 
         # Insert in table
         captains_table = PrettyTable()
-        captains_table.add_column("League", [classic_league.league["name"]])
+        captains_table.add_column("League", [classic_league["league"]["name"]])
 
         for captain in top_three_captains:
-            captain_player_obj = await fpl.get_player(captain[0])
-            captains_table.add_column(captain_player_obj.web_name, [captain[1]])
+            captain_player_obj = await session.get(f"{BASE_API_URL}element-summary/{captain[0]}/")
+            captain_player_obj = await captain_player_obj.json()
+            captains_table.add_column(captain_player_obj["web_name"], [captain[1]])
 
         return captains_table
 

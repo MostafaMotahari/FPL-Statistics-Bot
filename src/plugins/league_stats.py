@@ -6,27 +6,22 @@ from decouple import config
 from pyrogram import filters
 from pyrogram.client import Client
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto
-from fpl import FPL
 from prettytable import PrettyTable
+from src.__main__ import BASE_API_URL
 
 # League data scraper
 async def league_scraper(message: Message, league_id: int, standing_page: int = 1):
     # Get league data
     async with aiohttp.ClientSession() as session:
-        fpl = FPL(session)
-        await fpl.login(
-            config("FPL_EMAIL"),
-            config("FPL_PASSWORD"),
-        )
-        classic_league = await fpl.get_classic_league(league_id)
-
-        classic_league_standings = await classic_league.get_standings(page=standing_page, page_new_entries=1, phase=1)
+        # Get classic league from api
+        classic_league = await session.get(f"{BASE_API_URL}leagues-classic/{league_id}/standings/?page_standings={standing_page}")
+        classic_league = await classic_league.json()
 
     # Sort standings data
     standings_table = PrettyTable(["Rank", "Team", "Full Name", "GW", "Points"])
     # standings_table.max_table_width = 63 # Limit the width for image
 
-    for team in classic_league_standings["results"]:
+    for team in classic_league["standings"]["results"]:
         standings_table.add_row([
             team["rank"],
             team["entry_name"],
@@ -49,7 +44,7 @@ async def league_scraper(message: Message, league_id: int, standing_page: int = 
     if standing_page != 1:
         inline_keyboard[0].append(InlineKeyboardButton("Previous Page", callback_data=f"{league_id}:{standing_page - 1}"))
 
-    if classic_league_standings["has_next"]:
+    if classic_league["standings"]["has_next"]:
         inline_keyboard[0].append(InlineKeyboardButton("Next Page", callback_data=f"{league_id}:{standing_page + 1}"))
 
     # Send the league state as new message
@@ -57,9 +52,9 @@ async def league_scraper(message: Message, league_id: int, standing_page: int = 
         media=InputMediaPhoto(
             media="src/static/standings.png",
 
-            caption=f"🏆 **{classic_league.league['name']} Standings**\n"
-            f"➕ Created Date: {classic_league.league['created']}\n"
-            f"▶️ Started GW: {classic_league.league['start_event']}\n"
+            caption=f"🏆 **{classic_league['league']['name']} Standings**\n"
+            f"➕ Created Date: {classic_league['league']['created']}\n"
+            f"▶️ Started GW: {classic_league['league']['start_event']}\n"
             f"📃 __Page {standing_page}__",
         ),
 

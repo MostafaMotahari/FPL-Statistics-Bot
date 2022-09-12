@@ -4,6 +4,7 @@ from pyrogram.client import Client
 from decouple import config
 
 PLUGINS = dict(root='src/plugins')
+BASE_API_URL = "https://fantasy.premierleague.com/api/"
 
 app = Client(
     "FplBot",
