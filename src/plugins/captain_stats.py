@@ -61,10 +61,10 @@ async def captain_stats(client: Client, message: Message):
     # Draw on picture
     image = Image.open("src/static/captain_table_bg.jpg")
     draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype("src/static/cour.ttf", 20)
+    font = ImageFont.truetype("src/static/cour.ttf", 30)
 
     for index, captains_table in enumerate(leagues_captains_tables):
-        draw.text((index * 36, 20), str(captains_table), font=font, fill="black")
+        draw.text((index * 36, index * 20), str(captains_table), font=font, fill="black")
 
     image.save("src/static/captains_table.png") # Saving the created image
 
