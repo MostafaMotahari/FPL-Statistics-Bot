@@ -37,9 +37,9 @@ async def get_captains(league_id: int):
     captains_table.add_column("League", [classic_league["league"]["name"]])
 
     for captain in top_three_captains:
-        captain_player_obj = requests.get(f"{BASE_API_URL}element-summary/{captain[0]}/").json()
+        captain_player_obj = requests.get(f"{BASE_API_URL}bootstrap-static/").json()
         # captain_player_obj = await captain_player_obj.json()
-        captains_table.add_column(captain_player_obj["web_name"], [captain[1]])
+        captains_table.add_column(captain_player_obj["elements"][int(captain[0])]["web_name"], [captain[1]])
 
     return captains_table
 
