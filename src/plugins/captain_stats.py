@@ -63,9 +63,9 @@ async def captain_stats(client: Client, message: Message):
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype("src/static/cour.ttf", 30)
 
-    margins = (20, 60, 100, 140, 180, 220)
+    margin = int(image.size[1] / 5)
     for index, captains_table in enumerate(leagues_captains_tables):
-        draw.text((36, margins[index]), str(captains_table), font=font, fill="black")
+        draw.text((36, index * margin), str(captains_table), font=font, fill="black")
 
     image.save("src/static/captains_table.png") # Saving the created image
 
