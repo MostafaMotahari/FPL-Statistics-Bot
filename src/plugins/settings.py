@@ -71,4 +71,5 @@ async def power_mode(client: Client, callback_query):
                         callback_data="power_on"
                     )],
                 ]
+            )
         )
