@@ -20,11 +20,15 @@ app = Client(
 )
 
 if __name__ == "__main__":
-    # Create tables
-    Base.metadata.create_all(bind=engine)
     # Make migrations
-    if sys.argv[1] == "migrate":
-        make_migrations()
-        print("Migrations done!")
+    if sys.argv[1]:
+        if sys.argv[1] == "migrate"
+            # Create tables
+            Base.metadata.create_all(bind=engine)
+            make_migrations()
+            print("Migrations done!")
+        else:
+            print("Invalid argument!")
+
     # Run the bot
     app.run()
