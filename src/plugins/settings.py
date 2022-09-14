@@ -21,9 +21,9 @@ async def settings(client: Client, message: Message):
     await message.reply_text(
         SETTING_MESSAGE.format(
             "⬜️🟩" if config("BOT_POWER_MODE") == "ON" else "🟥⬜️",
-            len(get_all_users(get_db().__next__())),
-            "0",
-            "0",
+            len(get_all_users(get_db().__next__())) -1, # -1 Because there is pne migrations user in DB
+            len([user for user in get_all_users(get_db().__next__()) if user.status == "admin"]),
+            len([user for user in get_all_users(get_db().__next__()) if user.status == "banned"]),
         ),
         reply_markup=InlineKeyboardMarkup(
             [
