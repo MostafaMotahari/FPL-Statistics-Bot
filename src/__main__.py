@@ -21,7 +21,7 @@ app = Client(
 
 if __name__ == "__main__":
     # Make migrations
-    if sys.argv[1]:
+    if len(sys.argv) == 2:
         if sys.argv[1] == "migrate":
             # Create tables
             Base.metadata.create_all(bind=engine)
