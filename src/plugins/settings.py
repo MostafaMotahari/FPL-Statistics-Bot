@@ -34,3 +34,41 @@ async def settings(client: Client, message: Message):
             ]
         )    
     )
+
+# TODO this snippet is hardcoded, it should be dynamic
+# Power mode snippet
+@Client.on_callback_query(filters.regex("power_(on|off)"))
+async def power_mode(client: Client, callback_query):
+    if callback_query.data == "power_on":
+        await callback_query.edit_message_text(
+            SETTING_MESSAGE.format(
+                "⬜️🟩",
+                len(get_all_users(get_db().__next__())) -1, # -1 Because there is pne migrations user in DB
+                len([user for user in get_all_users(get_db().__next__()) if user.status == "admin"]),
+                len([user for user in get_all_users(get_db().__next__()) if user.status == "banned"]),
+            ),
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [InlineKeyboardButton(
+                        "⚡️Power mode⚡️",
+                        callback_data="power_off"
+                    )],
+                ]
+            )
+        )
+    else:
+        await callback_query.edit_message_text(
+            SETTING_MESSAGE.format(
+                "🟥⬜️",
+                len(get_all_users(get_db().__next__())) -1, # -1 Because there is pne migrations user in DB
+                len([user for user in get_all_users(get_db().__next__()) if user.status == "admin"]),
+                len([user for user in get_all_users(get_db().__next__()) if user.status == "banned"]),
+            ),
+            reply_markup=InlineKeyboardMarkup(
+                [
+                    [InlineKeyboardButton(
+                        "⚡️Power mode⚡️",
+                        callback_data="power_on"
+                    )],
+                ]
+        )
