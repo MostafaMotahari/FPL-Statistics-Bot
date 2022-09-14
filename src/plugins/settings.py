@@ -5,6 +5,7 @@ from decouple import config
 
 from src.sql.session import get_db
 from src.sql.methods import get_all_users
+from src.plugins.custom_filters import admin_filter
 
 # Message templates
 SETTING_MESSAGE = """
@@ -16,7 +17,7 @@ Power mode: {}
 - Banned: {}
 """
 
-@Client.on_message(filters.private & filters.command(["settings"]))
+@Client.on_message(admin_filter & filters.private & filters.command(["settings"]))
 async def settings(client: Client, message: Message):
     await message.reply_text(
         SETTING_MESSAGE.format(

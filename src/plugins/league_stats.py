@@ -7,7 +7,9 @@ from pyrogram import filters
 from pyrogram.client import Client
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton, CallbackQuery, InputMediaPhoto
 from prettytable import PrettyTable
+
 from src.__main__ import BASE_API_URL
+from src.plugins.custom_filters import power_mode_filter, banned_filter
 
 # League data scraper
 async def league_scraper(message: Message, league_id: int, standing_page: int = 1):
@@ -63,7 +65,8 @@ async def league_scraper(message: Message, league_id: int, standing_page: int = 
     )
 
 # Choosing a league to scrap
-@Client.on_message(filters.private & filters.command(["leagues"]))
+@Client.on_message(power_mode_filter & banned_filter & \
+    filters.private & filters.command(["leagues"]))
 async def send_leagues(client: Client, message: Message):
 
     if len(message.text.split(" ")) == 1:
@@ -91,7 +94,8 @@ async def send_leagues(client: Client, message: Message):
 
 
 # Main function that gets league data from fpl api and sort it
-@Client.on_callback_query(filters.regex("^[0-9]+"))
+@Client.on_callback_query(power_mode_filter & banned_filter & \
+    filters.private & filters.regex("^[0-9]+"))
 async def get_league_state(client: Client, callback_query: CallbackQuery):
 
     league_id = int(callback_query.data.split(":")[0])
