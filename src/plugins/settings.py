@@ -1,3 +1,5 @@
+import os
+
 from pyrogram import filters
 from pyrogram.client import Client
 from pyrogram.types import Message, InlineKeyboardMarkup, InlineKeyboardButton
@@ -41,6 +43,9 @@ async def settings(client: Client, message: Message):
 @Client.on_callback_query(filters.regex("power_(on|off)"))
 async def power_mode(client: Client, callback_query):
     if callback_query.data == "power_on":
+        # Power mode is off, turn it on
+        os.environ["BOT_POWER_MODE"] = "ON"
+
         await callback_query.edit_message_text(
             SETTING_MESSAGE.format(
                 "⬜️🟩",
@@ -58,6 +63,9 @@ async def power_mode(client: Client, callback_query):
             )
         )
     else:
+        # Power mode is on, turn it off
+        os.environ["BOT_POWER_MODE"] = "OFF"
+        
         await callback_query.edit_message_text(
             SETTING_MESSAGE.format(
                 "🟥⬜️",

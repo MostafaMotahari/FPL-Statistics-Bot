@@ -94,8 +94,7 @@ async def send_leagues(client: Client, message: Message):
 
 
 # Main function that gets league data from fpl api and sort it
-@Client.on_callback_query(power_mode_filter & banned_filter & \
-    filters.private & filters.regex("^[0-9]+"))
+@Client.on_callback_query(power_mode_filter & banned_filter & filters.regex("^[0-9]+"))
 async def get_league_state(client: Client, callback_query: CallbackQuery):
 
     league_id = int(callback_query.data.split(":")[0])
