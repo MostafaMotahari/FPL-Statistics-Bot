@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker
 
 
 engine = create_engine(config("DB_URL"))
-local_session = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+local_session = sessionmaker(autocommit=True, autoflush=False, bind=engine)
 
 def get_db() -> Generator:
     try:
