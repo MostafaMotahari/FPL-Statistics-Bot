@@ -1,5 +1,6 @@
 from pyrogram import filters
 from pyrogram.client import Client
+from pyrogram.types import Message, ReplyKeyboardMarkup, KeyboardButton
 
 from src.sql.session import get_db
 from src.sql.methods import get_user
@@ -12,7 +13,16 @@ async def start(client, message):
         "Hi! I'm a bot created by @FBI_Coach.\n"
         "I'm created by @Mousiol.\n"
         "I'm a bot that can help you to get the latest stats from the Fantasy Premier League.\n"
-        "You can use /help to get the list of commands.\n")
+        "You can use /help to get the list of commands.\n",
+        
+        reply_markup=ReplyKeyboardMarkup(
+            [
+                [KeyboardButton("📊 Stats"), KeyboardButton("⚽️ Predictions")],
+                [KeyboardButton("📱 Verify Phone Number", True)],
+            ],
+            resize_keyboard=True
+        )
+    )
 
     # Register a user
     db_session = get_db().__next__()
