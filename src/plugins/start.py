@@ -17,7 +17,8 @@ async def start(client, message):
         
         reply_markup=ReplyKeyboardMarkup(
             [
-                [KeyboardButton("📊 Stats"), KeyboardButton("⚽️ Predictions")],
+                [KeyboardButton("📊 Stats"), KeyboardButton("⚽️ Predictions 🎲")],
+                [KeyboardButton("👤 Profile")],
                 [KeyboardButton("📱 Verify Phone Number", True)],
             ],
             resize_keyboard=True

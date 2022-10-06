@@ -3,7 +3,7 @@ from pyrogram.client import Client
 from pyrogram.types import Message
 
 # Send help message
-@Client.on_message(filters.private & filters.command(["help"]))
+@Client.on_message(filters.private & filters.command(["help"]) & filters.regex("^📊 Stats$"))
 async def help(client: Client, message: Message):
     await message.reply_text(
         "Hi! I'm a bot created by @FBI_Coach.\n"
