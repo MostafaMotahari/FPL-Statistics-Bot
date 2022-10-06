@@ -5,7 +5,7 @@ from pyrogram.types import Message
 from src.sql.session import get_db
 from src.sql.methods import get_user
 
-
+# ToDo: add an option to change country code from env file or settings.
 @Client.on_message(filters.private & filters.contact)
 async def verify_phone_number(client: Client, message: Message):
 
